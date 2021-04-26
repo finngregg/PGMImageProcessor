@@ -5,7 +5,7 @@ using namespace std;
 
 namespace FNNGRE002{
 
-    vector<ConnectedComponent> clusters;
+    vector<ConnectedComponent> cc;
 
     PGMimageProcessor::PGMimageProcessor(){
         width=0;
@@ -13,11 +13,9 @@ namespace FNNGRE002{
     }
 
     PGMimageProcessor::~PGMimageProcessor() {
-        for(int i = 0; i < image.size(); i++){
-            for(int j = 0; j < height; j ++){
-                delete [] image[i][j];
-            }
-            delete [] image[i];
+        for(int i = 0; i < height; i++){
+                delete [] image[i];
+            delete [] image;
         }
     }
 
@@ -74,6 +72,7 @@ namespace FNNGRE002{
                         pair<int , int> myp =  set.front();
                         if (image[get<0>(myp)][get<1>(myp)] >= threshold) {
                             addComponents(get<0>(myp), get<1>(myp), set);
+                            cluster.set.push_back(std::make_pair(get<0>(myp), get<1>(myp)));
                             image[get<0>(myp)][get<1>(myp)] = 0;
                         }
                         else {
@@ -81,7 +80,11 @@ namespace FNNGRE002{
                             set.pop();
                         }
                     }
-                    
+                    if(cluster.set.size() > minValidSize) {
+                        cluster.total = cluster.set.size();
+                        cluster.id = cc.size();
+                        cc.push_back(cluster);
+                    }
                 }
                 else {
                     image[row][col] = 255;
