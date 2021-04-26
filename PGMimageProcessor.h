@@ -1,4 +1,4 @@
-#include "ConnectedComponent.h"
+#include "ConnectedComponent.cpp"
 
 #ifndef PGM_IP_H
 #define PGM_IP_H
@@ -8,14 +8,16 @@ namespace FNNGRE002{
         private:
             int width;
             int height;
-            std::vector<unsigned char **> image;
+            unsigned char ** image;
         
         public:
             PGMimageProcessor();
             ~PGMimageProcessor();
 
-            void loadImage(std::string fileName);
-
+            void PGMimageProcessor::loadImage(std::string fileName);
+            int extractComponents(char threshold, int minValidSize);
+            int addComponents(int row, int col, queue<pair<int, int> > set);
+            int checkBounds(int row, int col);
     };
 }
 
