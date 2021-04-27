@@ -124,4 +124,11 @@ namespace FNNGRE002{
         }
     }
 
+    int filterComponentsBySize(int minSize, int maxSize) {
+        for(int i = 0; i < cc.size(); i++) {
+            if (cc[i].set.size() < minSize || cc[i].set.size() > maxSize) {
+                cc.erase(cc.begin() + i);
+            }
+        }
+    }
 }

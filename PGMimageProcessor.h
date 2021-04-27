@@ -18,6 +18,7 @@ namespace FNNGRE002{
             int extractComponents(char threshold, int minValidSize);
             int addComponents(int row, int col, queue<pair<int, int> > set);
             int checkBounds(int row, int col);
+            int filterComponentsBySize(int minSize, int maxSize);
     };
 }
 
