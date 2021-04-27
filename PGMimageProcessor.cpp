@@ -76,7 +76,7 @@ namespace FNNGRE002{
                             image[get<0>(myp)][get<1>(myp)] = 0;
                         }
                         else {
-                            image[get<0>(myp)][get<1>(myp)] = 255;
+                            image[get<0>(myp)][get<1>(myp)] = 0;
                             set.pop();
                         }
                     }
@@ -87,12 +87,17 @@ namespace FNNGRE002{
                     }
                 }
                 else {
-                    image[row][col] = 255;
+                    image[row][col] = 0;
                     continue;
                 }
             }
         }
-        
+        for(int i = 0; i < cc.size(); i++) {
+            for(int j = 0; j < cc[i].set.size(); j++) {
+                image[get<0>(cc[i].set[j])][get<1>(cc[i].set[j])] = 255;
+            }
+        }
+
     }
 
     int PGMimageProcessor::addComponents(int row, int col, queue<pair<int, int> > set) {
