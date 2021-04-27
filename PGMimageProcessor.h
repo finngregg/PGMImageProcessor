@@ -15,9 +15,9 @@ namespace FNNGRE002{
             PGMimageProcessor();
             ~PGMimageProcessor();
 
-            void PGMimageProcessor::loadImage(std::string fileName);
-            int extractComponents(char threshold, int minValidSize);
-            int addComponents(int row, int col, queue<pair<int, int> > set);
+            void loadImage(std::string fileName);
+            int extractComponents(int threshold, int minValidSize);
+            void addComponents(int row, int col, queue<pair<int, int> > set);
             int checkBounds(int row, int col);
             int filterComponentsBySize(int minSize, int maxSize);
             bool writeComponents(const std::string & outFileName);

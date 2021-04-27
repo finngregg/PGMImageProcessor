@@ -15,8 +15,8 @@ namespace FNNGRE002{
     PGMimageProcessor::~PGMimageProcessor() {
         for(int i = 0; i < height; i++){
                 delete [] image[i];
-            delete [] image;
         }
+        delete [] image;
     }
 
     void PGMimageProcessor::loadImage(std::string fileName){
@@ -64,16 +64,25 @@ namespace FNNGRE002{
                               |std::ios_base::trunc
                             );
 
-        fileOut << "P5\n" << width << " " << height << "\n" << max << "\n";
+        if(fileOut) {
 
-        for(int row = 0; row < height; ++row) {
+            fileOut << "P5\n" << width << " " << height << "\n" << max << "\n";
+
+            for(int row = 0; row < height; ++row) {
                 for (int col = 0; col < width; ++col) {
                     fileOut << image[row][col];
                 }
             }
+
+            return true;
+        }
+
+        else {
+            return false;
+        }
     }
 
-    int PGMimageProcessor::extractComponents(char threshold, int minValidSize) {
+    int PGMimageProcessor::extractComponents(int threshold, int minValidSize) {
         for(int row = 0; row < height; ++row) {
             for (int col = 0; col < width; ++col) {
                 if(image[row][col] >= threshold) {
@@ -111,21 +120,21 @@ namespace FNNGRE002{
                 image[get<0>(cc[i].set[j])][get<1>(cc[i].set[j])] = 255;
             }
         }
-
+        return cc.size();
     }
 
-    int PGMimageProcessor::addComponents(int row, int col, queue<pair<int, int> > set) {
+    void PGMimageProcessor::addComponents(int row, int col, queue<pair<int, int> > set) {
         if (checkBounds(row-1, col) == 1) {
-            set.push({row-1, col});
+            set.push(std::make_pair(row-1, col));
         }
         if (checkBounds(row+1, col) == 1) {
-            set.push({row+1, col});
+            set.push(std::make_pair(row+1, col));
         }
         if (checkBounds(row, col-1) == 1) {
-            set.push({row, col-1});
+            set.push(std::make_pair(row, col-1));
         }
         if (checkBounds(row, col+1) == 1) {
-            set.push({row, col+1});
+            set.push(std::make_pair(row, col+1));
         }
     }
 
@@ -144,6 +153,7 @@ namespace FNNGRE002{
                 cc.erase(cc.begin() + i);
             }
         }
+        return cc.size();
     }
 
 }
