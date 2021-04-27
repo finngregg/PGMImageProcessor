@@ -8,6 +8,7 @@ namespace FNNGRE002{
         private:
             int width;
             int height;
+            std::string max;
             unsigned char ** image;
         
         public:
@@ -19,6 +20,7 @@ namespace FNNGRE002{
             int addComponents(int row, int col, queue<pair<int, int> > set);
             int checkBounds(int row, int col);
             int filterComponentsBySize(int minSize, int maxSize);
+            bool writeComponents(const std::string & outFileName);
     };
 }
 

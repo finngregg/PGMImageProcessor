@@ -20,28 +20,27 @@ namespace FNNGRE002{
     }
 
     void PGMimageProcessor::loadImage(std::string fileName){
-        ifstream file(fileName, ios::binary);
+        ifstream fileIn(fileName, ios::binary);
         string line;
         string comment;
         string dimensions;
-        string max;
         stringstream ss;
         unsigned char pixel;
 
-        if(file) {
-            getline(file, line);
+        if(fileIn) {
+            getline(fileIn, line);
 
-            getline(file, comment);
+            getline(fileIn, comment);
             while(comment.at(0)=='#'){
-                getline(file, comment);
+                getline(fileIn, comment);
             }
             dimensions = comment;
             std::stringstream(dimensions) >> width >> std::ws;
             std::stringstream(dimensions) >> height >> std::ws;
             
-            getline(file, max);
+            getline(fileIn, max);
 
-            ss << file.rdbuf();
+            ss << fileIn.rdbuf();
 
             image = new unsigned char *[height];
             for(int row = 0; row < height; ++row) {
@@ -52,11 +51,26 @@ namespace FNNGRE002{
                 }
             }
 
-            file.close();
+            fileIn.close();
         }
         else {
             cout << "File Not Found\n\n";
         }
+    }
+
+    bool PGMimageProcessor::writeComponents(const std::string & outFileName) {
+        std::ofstream fileOut(outFileName,std::ios_base::out
+                              |std::ios_base::binary
+                              |std::ios_base::trunc
+                            );
+
+        fileOut << "P5\n" << width << " " << height << "\n" << max << "\n";
+
+        for(int row = 0; row < height; ++row) {
+                for (int col = 0; col < width; ++col) {
+                    fileOut << image[row][col];
+                }
+            }
     }
 
     int PGMimageProcessor::extractComponents(char threshold, int minValidSize) {
@@ -131,4 +145,5 @@ namespace FNNGRE002{
             }
         }
     }
+
 }
