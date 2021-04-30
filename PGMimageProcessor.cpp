@@ -5,8 +5,6 @@ using namespace std;
 
 namespace FNNGRE002{
 
-    vector<ConnectedComponent> cc;
-
     PGMimageProcessor::PGMimageProcessor(){
         width=0;
         height=0;
@@ -35,8 +33,7 @@ namespace FNNGRE002{
                 getline(fileIn, comment);
             }
             dimensions = comment;
-            std::stringstream(dimensions) >> width >> std::ws;
-            std::stringstream(dimensions) >> height >> std::ws;
+            std::stringstream(dimensions) >> height >> std::ws >> width;
             
             getline(fileIn, max);
 
@@ -48,6 +45,14 @@ namespace FNNGRE002{
                 for (int col = 0; col < width; ++col) {
                     ss >> pixel;
                     image[row][col] = pixel;
+                }
+            }
+
+            check = new bool *[height];
+            for(int row = 0; row < height; ++row) {
+                check[row] = new bool[width];
+                for (int col = 0; col < width; ++col) {
+                    check[row][col] = false;
                 }
             }
 
@@ -66,7 +71,7 @@ namespace FNNGRE002{
 
         if(fileOut) {
 
-            fileOut << "P5\n" << width << " " << height << "\n" << max << "\n";
+            fileOut << "P5\n" << height << " " << width << "\n" << max << "\n";
 
             for(int row = 0; row < height; ++row) {
                 for (int col = 0; col < width; ++col) {
@@ -88,53 +93,57 @@ namespace FNNGRE002{
                 if(image[row][col] >= threshold) {
                     queue<pair<int, int> > set;
                     ConnectedComponent cluster;
-                    addComponents(row, col, set);
-                    cluster.set.push_back(std::make_pair(row, col));
-                    image[row][col] = 0;
+                    set.push(std::make_pair(row, col));
                     for (int i = 0; i < set.size(); i++) {
                         pair<int , int> myp =  set.front();
-                        if (image[get<0>(myp)][get<1>(myp)] >= threshold) {
-                            addComponents(get<0>(myp), get<1>(myp), set);
-                            cluster.set.push_back(std::make_pair(get<0>(myp), get<1>(myp)));
-                            image[get<0>(myp)][get<1>(myp)] = 0;
+                        if (image[myp.first-1][myp.second] >= threshold && checkBounds(myp.first-1, myp.second) == 1) {
+                            set.push(std::make_pair(myp.first-1, myp.second));
                         }
-                        else {
-                            image[get<0>(myp)][get<1>(myp)] = 0;
-                            set.pop();
+                        if (image[myp.first+1][myp.second] >= threshold && checkBounds(myp.first+1, myp.second) == 1) {
+                            set.push(std::make_pair(myp.first+1, myp.second));
                         }
+                        if (image[myp.first][myp.second-1] >= threshold && checkBounds(myp.first, myp.second-1) == 1) {
+                            set.push(std::make_pair(myp.first, myp.second-1));
+                        }
+                        if (image[myp.first][myp.second+1] >= threshold && checkBounds(myp.first, myp.second+1) == 1) {
+                            set.push(std::make_pair(myp.first, myp.second+1));
+                        }
+                        cluster.set.push_back(std::make_pair(myp.first, myp.second));
+                        image[myp.first][myp.second] = 0;
+                        check[myp.first][myp.second] = true;
+                        set.pop();
                     }
                     if(cluster.set.size() > minValidSize) {
                         cluster.total = cluster.set.size();
                         cluster.id = cc.size();
-                        cc.push_back(cluster);
+                        cc.push_back(std::make_shared<ConnectedComponent>(cluster));
                     }
                 }
                 else {
                     image[row][col] = 0;
-                    continue;
                 }
             }
         }
-        for(int i = 0; i < cc.size(); i++) {
-            for(int j = 0; j < cc[i].set.size(); j++) {
-                image[get<0>(cc[i].set[j])][get<1>(cc[i].set[j])] = 255;
+        for(int i = 0; i < height; i++) {
+            for(int j = 0; j < width; j++) {
+                if(check[i][j] == true) {
+                    image[i][j] = 255;
+                }
             }
         }
+
+        /*for(int i = 0; i < cc.size(); i++) {
+            ConnectedComponent c = *cc[i];
+            for(int j = 0; j < c.set.size(); j++) {
+                image[c.set[j].first][c.set[j].second] = 255;
+            }
+        }*/
         return cc.size();
     }
 
-    void PGMimageProcessor::addComponents(int row, int col, queue<pair<int, int> > set) {
-        if (checkBounds(row-1, col) == 1) {
-            set.push(std::make_pair(row-1, col));
-        }
-        if (checkBounds(row+1, col) == 1) {
-            set.push(std::make_pair(row+1, col));
-        }
-        if (checkBounds(row, col-1) == 1) {
-            set.push(std::make_pair(row, col-1));
-        }
-        if (checkBounds(row, col+1) == 1) {
-            set.push(std::make_pair(row, col+1));
+    void PGMimageProcessor::addComponents(int row, int col, queue<pair<int, int> > &set) {
+        if (checkBounds(row, col) == 1) {
+            set.push(std::make_pair(row, col));
         }
     }
 
@@ -147,13 +156,47 @@ namespace FNNGRE002{
         }
     }
 
-    int filterComponentsBySize(int minSize, int maxSize) {
+    int PGMimageProcessor::filterComponentsBySize(int minSize, int maxSize) {
         for(int i = 0; i < cc.size(); i++) {
-            if (cc[i].set.size() < minSize || cc[i].set.size() > maxSize) {
+            ConnectedComponent c = *cc[i];
+            if (c.set.size() < minSize || c.set.size() > maxSize) {
                 cc.erase(cc.begin() + i);
             }
         }
         return cc.size();
     }
 
+    int PGMimageProcessor::getComponentCount() const {
+        return cc.size();
+    }
+
+    int PGMimageProcessor::getLargestSize() const {
+        ConnectedComponent c = *cc[0];
+        int l = c.set.size();
+        for(int i = 0; i < cc.size(); i++) {
+            ConnectedComponent c1 = *cc[i];
+            int l1 = c1.set.size();
+            if(l1 > l) {
+                l = l1;
+            }
+        }
+        return l;
+    }
+
+    int PGMimageProcessor::getSmallestSize() const {
+        ConnectedComponent c = *cc[0];
+        int s = c.set.size();
+        for(int i = 0; i < cc.size(); i++) {
+            ConnectedComponent c1 = *cc[i];
+            int s1 = c1.set.size();
+            if(s1 < s) {
+                s = s1;
+            }
+        }
+        return s;
+    }
+
+    void PGMimageProcessor::printComponentData(const ConnectedComponent & theComponent) const {
+        cout << "Component ID: " << theComponent.id << "\nTotal number of pixels: " << theComponent.total;
+    }
 }

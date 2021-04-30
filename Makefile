@@ -7,5 +7,6 @@ clean:
 	@rm -f *.o *.run findcomp
 
 run: findcomp
-	./findcomp chess.pgm
+	./findcomp coins.pgm -t 180 -s 3 100 -w out.pgm
+
 
