@@ -1,55 +1,59 @@
 # README for CSC3022F Assignment 3
 
-## huffencode.cpp
-This class contains all methods for manipulating the data contained in the main method which deals with the recieving of input instructions, input file names and output file names. 
+## PGMimageProcessor.h
+This class contains all the method calls held in PGMimageProcessor.cpp. 
 
-This class is responsible for creating an object of the huffmanTree class and encoding the data stored in the input file using:
-* huffmanTree methods such as buildTree() and buildCodeTable()
-* bit packing the contents to acheive better compression
+## PGMimageProcessor.cpp
+This class contains all methods necessary for reading and manipulating a pgm image as well as writing to a new pgm image file. This class is responsible for creating a vector of ConnectedComponent objects storing the connected pixels of the input image.
 
-## huffmanTree.cpp
-This class defines the variables and methods of the huffmanTree class. These variables and methods include:
+Variables and methods include:
 
 * Private Variables
-  * unordered_map<char, int> mapping, priority_queue<HuffmanNode, vector<HuffmanNode>,compareFrequency> myQueue
-* Public Variables
-  * shared_ptr<HuffmanNode> root
+  * int width, int height, string max, unsigned char ** image, bool ** check, vector<shared_ptr<ConnectedComponent>> cc
 
-* HuffmanTree(unordered_map<char, int> map) - Default Constructor
-* ~HuffmanTree() - Destructor
-* HuffmanTree(const HuffmanTree & tree) - Copy Constructor
-* HuffmanTree(HuffmanTree && tree) - Move Constructor
-* HuffmanTree & operator=(const HuffmanTree & tree) - Copy Assignment Operator
-* HuffmanTree & operator=(HuffmanTree && tree) - Move Assignment Operator
-* void buildTree() - used to build the Huffman Tree structure according to the priorty queue
-* void insertNode(int i, SLDALE003::HuffmanNode l, SLDALE003::HuffmanNode r) - used to insert a node in the buildTree() method
-* void buildCodeTable(unordered_map<char, string> &map, shared_ptr<SLDALE003::HuffmanNode> r, string bitString) - generates the code table populated by bit streams using a form of recursive call
-* void writeCodeTableToFile(unordered_map<char, string> map, string outputBuffer, string outputFile, string outputPath) - generates output header and data file from given parameters
-* double returnRatio(int size1, int size2) - returns a ratio of compression performance given different lengths/sizes of files
+* PGMimageProcessor() - Default Constructor
+* ~PGMimageProcessor() - Destructor
+* PGMimageProcessor(const PGMimageProcessor & rhs) - Copy Constructor
+* PGMimageProcessor(PGMimageProcessor && rhs) - Move Constructor
+* PGMimageProcessor & operator=(const PGMimageProcessor & rhs) - Copy Assignment Operator
+* PGMimageProcessor & operator=(PGMimageProcessor & rhs) - Move Assignment Operator
+* void loadImage(std::string fileName) - loads pgm image into unsigned char ** array 
+* int extractComponents(int threshold, int minValidSize) - iterates through array, finding pixels higher than the threshold and adds them to ConnectedComponent objects
+* void addComponents(int row, int col, queue<pair<int, int> > &set) - adds pixel to temporary queue
+* int checkBounds(int row, int col) - checks to ensure surrounding pixels are not out of bounds
+* int filterComponentsBySize(int minSize, int maxSize) - filters ConnectedComponents by their sizes
+* bool writeComponents(const std::string & outFileName) - writes the modified pgm to a new pgm file 'outFileName'
+* int getComponentCount(void) const - returns total number of ConnectedComponents in the vector
+* int getLargestSize(void) const - return number of pixels in largest component
+* int getSmallestSize(void) const - return number of pixels in smallest component
+* void printComponentData(const ConnectedComponent & theComponent) const - print the data for a component to std::cout (data being the ConnectedComponents ID and total)
+* void printAllData() - prints the data for every ConnectedComponent to std::cout
 
-## huffmanTree.h
-This class contains all the method calls held in huffmanTree.cpp. This class also defines the compareFrequency struct which returns a boolean value which is determined by comparing the frequency of two nodes.
+## ConnectedComponent.h
+This class contains all the method calls held in ConnectedComponent.cpp. 
 
-## huffmanNode.cpp
-This class defines the variables and methods of the huffmanNode class. These variables and methods include:
-* char letter, int frequency, shared_ptr<HuffmanNode> left, shared_ptr<HuffmanNode> right
-* HuffmanNode(char l, int f) - Default Constructor
-* ~HuffmanNode() - Destructor
-* HuffmanNode(const HuffmanNode & node) - Copy Constructor
-* HuffmanNode(HuffmanNode && node) - Move Constructor
-* HuffmanNode & operator=(const HuffmanNode & node) - Copy Assignment Operator
-* HuffmanNode & operator=(HuffmanNode && node) - Move Assignment Operator
+## ConnectedComponent.cpp
 
-## huffmanNode.h
-This class contains all the method calls held in huffmanNode.cpp
+Variables and methods include:
+
+* Private Variables
+  int total, int id, std::vector< std::pair<int, int> > set
+
+* ConnectedComponent() - Default Constructor
+* ~ConnectedComponent() - Destructor
+* ConnectedComponent(const ConnectedComponent& rhs) - Copy Constructor
+* ConnectedComponent(ConnectedComponent && rhs) - Move Constructor
+* ConnectedComponent & operator=(const ConnectedComponent& rhs) - Copy Assignment Operator
+* ConnectedComponent & operator=(ConnectedComponent && rhs) - Move Assignment Operator
+
+## findcomp.cpp
+
+Contains the main method which helps process the file name and command line flags entered by the user. 
 
 ## Makefile
-The Makefile compiles and links all necessary files into the volimage.run executable. 
+The Makefile compiles and links all necessary files into the findcomp executable. 
 
-The input is of the form: ./huffencode "input file name" "output file base name"
-N.B: The output file type changes so this extension must be excluded
-
-Some examples have been commented out in the Makfile. The main commands include:
+The main commands include:
 
 * make - compiles files
 * make run - runs executable according to specific instruction
