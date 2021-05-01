@@ -45,10 +45,8 @@ int main(int argc, char * argv[]){
                 int total = final.getComponentCount();
                 int biggest = final.getLargestSize();
                 int smallest = final.getSmallestSize();
-                cout << "Total ConnectedComponents: " << total << "\nBiggest ConnectedComponent: " << biggest << "\nSmallest ConnectedComponent: " << smallest;
-                for(int i = 0; i < total; i++) {
-                    
-                }
+                cout << "Total ConnectedComponents: " << total << "\nBiggest ConnectedComponent: " << biggest << "\nSmallest ConnectedComponent: " << smallest << "\n";
+                final.printAllData();
             }
             if(current.compare(write) == 0){
                 final.writeComponents(argv[i+1]);

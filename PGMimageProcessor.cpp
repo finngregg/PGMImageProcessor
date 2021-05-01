@@ -1,5 +1,5 @@
 #include "PGMimageProcessor.h"
-#include "ConnectedComponent.cpp"
+#include "ConnectedComponent.h"
 
 using namespace std;
 
@@ -15,6 +15,64 @@ namespace FNNGRE002{
                 delete [] image[i];
         }
         delete [] image;
+    }
+
+    PGMimageProcessor &PGMimageProcessor::operator=(const PGMimageProcessor & rhs) {
+        if(this != &rhs) { 
+            width = rhs.width;
+            height = rhs.height;
+            max = rhs.max;
+            check = rhs.check;
+            cc = rhs.cc;
+            if(image != nullptr) {
+                for(int i = 0; i < height; i++){
+                    delete [] image[i];
+                }
+                delete [] image;
+            }
+            image = rhs.image; 
+            if(check != nullptr) {
+                for(int i = 0; i < height; i++){
+                    delete [] check[i];
+                }
+                delete [] check;
+            }
+            check = rhs.check; 
+        }
+        return *this; 
+    }
+
+    PGMimageProcessor &PGMimageProcessor::operator=(PGMimageProcessor && rhs) {
+        if(this != &rhs) { 
+            width = std::move(rhs.width);
+            height = std::move(rhs.height);
+            max = std::move(rhs.max);
+            cc = std::move(rhs.cc);
+            if(image != nullptr) {
+                for(int i = 0; i < height; i++){
+                    delete [] image[i];
+                }
+                delete [] image;
+            }
+            image = rhs.image; 
+            for(int i = 0; i < rhs.height; i++){
+                delete [] rhs.image[i];
+            }
+            delete [] rhs.image;
+
+            if(check != nullptr) {
+                for(int i = 0; i < height; i++){
+                    delete [] check[i];
+                }
+                delete [] check;
+            }
+            check = rhs.check; 
+            for(int i = 0; i < rhs.height; i++){
+                delete [] rhs.check[i];
+            }
+            delete [] rhs.check;
+        }
+        return *this; 
     }
 
     void PGMimageProcessor::loadImage(std::string fileName){
@@ -92,7 +150,7 @@ namespace FNNGRE002{
             for (int col = 0; col < width; ++col) {
                 if(image[row][col] >= threshold) {
                     queue<pair<int, int> > set;
-                    ConnectedComponent cluster;
+                    FNNGRE002::ConnectedComponent cluster;
                     set.push(std::make_pair(row, col));
                     for (int i = 0; i < set.size(); i++) {
                         pair<int , int> myp =  set.front();
@@ -171,32 +229,35 @@ namespace FNNGRE002{
     }
 
     int PGMimageProcessor::getLargestSize() const {
-        ConnectedComponent c = *cc[0];
-        int l = c.set.size();
+        int l = 0;
         for(int i = 0; i < cc.size(); i++) {
-            ConnectedComponent c1 = *cc[i];
-            int l1 = c1.set.size();
-            if(l1 > l) {
-                l = l1;
+            ConnectedComponent c = *cc[i];
+            if(c.set.size() > l) {
+                l = c.set.size();
             }
         }
         return l;
     }
 
     int PGMimageProcessor::getSmallestSize() const {
-        ConnectedComponent c = *cc[0];
-        int s = c.set.size();
+        int s = 100;
         for(int i = 0; i < cc.size(); i++) {
-            ConnectedComponent c1 = *cc[i];
-            int s1 = c1.set.size();
-            if(s1 < s) {
-                s = s1;
+            ConnectedComponent c = *cc[i];
+            if(c.set.size() < s) {
+                s = c.set.size();
             }
         }
         return s;
     }
 
     void PGMimageProcessor::printComponentData(const ConnectedComponent & theComponent) const {
-        cout << "Component ID: " << theComponent.id << "\nTotal number of pixels: " << theComponent.total;
+        cout << "Component ID: " << theComponent.id << " Total number of pixels: " << theComponent.total;
+    }
+
+    void PGMimageProcessor::printAllData() {
+        for(int i =0; i < cc.size(); i++) {
+            ConnectedComponent c = *cc[i];
+            cout << "Component ID: " << c.id << " Total number of pixels: " << c.total << "\n";
+        }
     }
 }
