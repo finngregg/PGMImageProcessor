@@ -8,5 +8,3 @@ clean:
 
 run: findcomp
 	./findcomp coins.pgm -t 180 -s 3 180 -w out.pgm 
-
-
