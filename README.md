@@ -1,5 +1,3 @@
-# README for CSC3022F Assignment 3
-
 ## PGMimageProcessor.h
 This class contains all the method calls held in PGMimageProcessor.cpp. 
 
